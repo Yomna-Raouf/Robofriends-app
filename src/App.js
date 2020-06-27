@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import Spinner from 'react-spinkit';
 import CardList from './CardList';
 import SearchBox from './SearchBox';
+import Scroll from './Scroll';
 import './App.css';
  
 
@@ -30,13 +32,20 @@ class App extends Component  {
             return robot.name.toLowerCase().includes(this.state.searchfield.toLowerCase());
         })
         if (this.state.robots.length === 0) {
-            return <h1 className='tc'>Loading...</h1>
+            return ( 
+            <div className='tc'> 
+                <h1>Loading</h1>
+                <Spinner name="ball-pulse-sync" color="#0ccac4"/>
+            </div> 
+            );
         } else { 
             return (
                 <div className='tc'>
                     <h1 className='f1'>RoboFriends</h1>
                     <SearchBox searchChange={this.onSearchChange} />
-                    <CardList robots={filteredRobots}/>
+                    <Scroll>
+                        <CardList robots={filteredRobots}/>
+                    </Scroll>                    
                 </div>
             );
         }
