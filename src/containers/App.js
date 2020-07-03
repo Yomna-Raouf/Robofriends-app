@@ -1,17 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import Spinner from 'react-spinkit';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundry from '../components/ErrorBoundry';
 import './App.css';
+import {setSearchField } from '../actions';
  
+const mapStateToProps = (state) => {
+    return {
+        searchField: state.searchField
+    }
+}
 
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onSearchChange: (event) => dispatch(setSearchField(event.target.value))
+    }
+}
 
-const App = () => {
+const App = (props) => {
 
     const [robots, setRobots] = useState([]);
-    const [searchfield, setSearchfield] = useState('');
+   // const [searchfield, setSearchfield] = useState('');
+   const { searchField, onSearchChange} = props;
 
     useEffect( () => {
         // this code runs once when the component loads 
@@ -19,13 +32,13 @@ const App = () => {
         const fetchData = () => {
            fetch('https://jsonplaceholder.typicode.com/users')
             .then(response => response.json())
-            .then(users => setRobots(users) )
+            .then(users => setRobots(users) ) 
         };
         fetchData();
       }, []);
     
     const filteredRobots = robots.filter(robot => {
-        return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+        return robot.name.toLowerCase().includes(searchField.toLowerCase());
     })
 
     return !robots.length ?
@@ -38,7 +51,7 @@ const App = () => {
     (
         <div className='tc'>
             <h1 className='f1'>RoboFriends</h1>
-            <SearchBox handleChange={ event => setSearchfield(event.target.value)} />
+            <SearchBox handleChange={onSearchChange} />
             <Scroll>
                 <ErrorBoundry>
                 <CardList robots={filteredRobots}/>
@@ -48,7 +61,7 @@ const App = () => {
     );
 }
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
 
 /* class App extends Component  {
     constructor () {
