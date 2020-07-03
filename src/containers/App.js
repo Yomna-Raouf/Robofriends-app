@@ -1,47 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import Spinner from 'react-spinkit';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundry from '../components/ErrorBoundry';
 import './App.css';
-import {setSearchField } from '../actions';
+import {setSearchField, requestRobots } from '../actions';
  
+
+// Using Redux to manage States
+
 const mapStateToProps = (state) => {
     return {
-        searchField: state.searchField
+        searchField: state.searchRobots.searchField,
+        robots: state.requestRobots.robots,
+        isPending: state.requestRobots.isPending,
+        error: state.requestRobots.error
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        onSearchChange: (event) => dispatch(setSearchField(event.target.value))
+        onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+       // onRequestRobots: () => requestRobots
     }
 }
 
 const App = (props) => {
 
-    const [robots, setRobots] = useState([]);
+   // const [robots, setRobots] = useState([]);
    // const [searchfield, setSearchfield] = useState('');
-   const { searchField, onSearchChange} = props;
+   const { searchField, onSearchChange,  robots,  isPending} = props;
 
-    useEffect( () => {
-        // this code runs once when the component loads 
-        // Here I'm going to fetch a random user from the random user generator API
-        const fetchData = () => {
-           fetch('https://jsonplaceholder.typicode.com/users')
-            .then(response => response.json())
-            .then(users => setRobots(users) ) 
-        };
-        fetchData();
-      }, []);
+
+   const dispatch = useDispatch()
+
+   useEffect(() =>{
+       dispatch(requestRobots())
+   },[dispatch])
+
     
-    const filteredRobots = robots.filter(robot => {
+    
+    const filteredRobots =  robots.filter(robot => {
         return robot.name.toLowerCase().includes(searchField.toLowerCase());
     })
 
-    return !robots.length ?
+    return isPending ?
             
     <div className='tc'> 
         <h1>Loading</h1>
@@ -62,6 +67,57 @@ const App = (props) => {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+
+// Using Functional Components with React Hooks
+
+/*
+const App = () => {
+
+    const [robots, setRobots] = useState([]);
+    const [searchfield, setSearchfield] = useState('');
+
+
+    useEffect( () => {
+        // this code runs once when the component loads 
+        // Here I'm going to fetch a random user from the random user generator API
+        const fetchData = () => {
+           fetch('https://jsonplaceholder.typicode.com/users')
+            .then(response => response.json())
+            .then(users => setRobots(users) ) 
+        };
+        fetchData();
+      }, []);
+    
+    const filteredRobots = robots.filter(robot => {
+        return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+    })
+
+    return !robots.length ?
+            
+    <div className='tc'> 
+        <h1>Loading</h1>
+        <Spinner name="ball-pulse-sync" color="#0ccac4"/>
+    </div> 
+    :
+    (
+        <div className='tc'>
+            <h1 className='f1'>RoboFriends</h1>
+            <SearchBox handleChange={ (e) => setSearchfield(e.target.value) } />
+            <Scroll>
+                <ErrorBoundry>
+                    <CardList robots={filteredRobots}/>
+                </ErrorBoundry>
+            </Scroll>                    
+        </div>
+    );
+}
+
+export default App;
+*/
+
+
+// Using Class components
 
 /* class App extends Component  {
     constructor () {
